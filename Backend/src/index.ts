@@ -16,6 +16,27 @@ Init.getInstanceWs(server)
 const io = Init.getInstanceWs().connection
 
 
+io.on("connection",(ws)=>{
+    console.log("user connected")
+
+
+    ws.on("message",(message)=>{
+        console.log("Recivied message")
+
+        ws.send(`Server received your message: ${message}`);
+
+    })
+
+    // Use userManager.ts to to further logic
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+
+
+
+})
+
 
 
 
