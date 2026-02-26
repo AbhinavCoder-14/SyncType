@@ -1,4 +1,5 @@
 import { WebSocket } from "ws"
+import type { matchMakingPlayers } from "./controller/UsersManager.js";
 
 
 
@@ -20,7 +21,7 @@ export enum RaceState {
 }
 
 
-class competition{
+export class competition{
     private compId:string;
     private players:PlayerProgress[];
     private paragraph:string;
@@ -34,7 +35,7 @@ class competition{
 
 
 
-    constructor(){
+    constructor(AllUsers:matchMakingPlayers[]){
         this.compId = ""
         this.players = []
         this.paragraph = ""
