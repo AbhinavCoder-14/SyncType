@@ -2,16 +2,19 @@ import { WebSocket } from "ws"
 import type { matchMakingPlayers } from "./controller/UsersManager.js";
 
 
-
-export interface PlayerProgress {
+export interface Player {
   userId: string;
-  charIndex: number;
-  wpm: number;             
-  accuracy: number;        
-  isFinished: boolean;
-  finishTime?: number;     
+  ws:WebSocket;
+  name:string;
+  PlayerProgress:{
+    charIndex: number;
+    wpm: number;             
+    accuracy: number;        
+    isFinished: boolean;
+    finishTime?: number;     
+  };
+  isStarted:boolean;
 }
-
 
 export enum RaceState {
   WAITING = "WAITING",     
@@ -22,8 +25,8 @@ export enum RaceState {
 
 
 export class competition{
-    private compId:string;
-    private players:PlayerProgress[];
+    public compId:string;
+    private players:Player[];
     private paragraph:string;
     private hasStarted:boolean;
     private status: RaceState;
@@ -35,8 +38,8 @@ export class competition{
 
 
 
-    constructor(AllUsers:matchMakingPlayers[]){
-        this.compId = ""
+    constructor(compId:string){
+        this.compId = compId
         this.players = []
         this.paragraph = ""
         this.hasStarted = false;
@@ -46,10 +49,33 @@ export class competition{
         this.totalChars = this.paragraph.length
         this.wordCount = this.paragraph.split(" ").length
     }
+    // private randomUUId() {
+    //   let userId = crypto.randomUUID();
+    // // console.log(userId);
+    //   return userId;
+    // }
 
-    
+
+    public addUser(AllUsers:matchMakingPlayers[]){
+      this.players = AllUsers.map((user)=>({
+            ...user,
+            PlayerProgress: {
+                charIndex: 0,
+                wpm: 0,
+                accuracy: 100,
+                isFinished: false,
+            }
+        }));
+
+        return this.players
+        
+
+    }
 
 
 
 
-}
+
+
+
+  }

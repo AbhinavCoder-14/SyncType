@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { competition } from "../competition.js";
+import { competition, type Player } from "../competition.js";
 import { CompetitionManager } from "./competitionManager.js";
 
 
@@ -11,7 +11,8 @@ interface User {
 export interface matchMakingPlayers{
     name:string;
     ws:WebSocket;
-    isStarted:boolean
+    userId:string;
+    isStarted:boolean;
 }
 
 export class UserManager{
@@ -20,6 +21,8 @@ export class UserManager{
     private competitionManager;
     private lobbyTimer: NodeJS.Timeout | null = null;
     private roomPlayers:matchMakingPlayers[]
+    // public player : Player[]
+    // public roomId:string;
 
 
 
@@ -28,17 +31,38 @@ export class UserManager{
         this.matchMakingPlayers = []
         this.competitionManager = new CompetitionManager()
         this.roomPlayers = []
+        // this.player = []
+        // this.roomId = ""
 
+        
 
+    }
+    private randomUUId() {
+      let userId = crypto.randomUUID();
+    // console.log(userId);
+      return userId;
     }
 
     public addUser(ws:WebSocket){
         
         ws.on("join",(data)=>{
             this.users.push({...data,isStarted:false})
-            this.matchMakingPlayers.push({...data,isStarted:false})
+            this.matchMakingPlayers.push({...data,isStarted:false,userId:this.randomUUId})
             if (this.matchMakingPlayers.length==5){
-                this.triggerRoom()
+                const credentials = this.triggerRoom()
+                console.log("users - ", credentials.players," is added in room - ",credentials.roomId)
+
+                ws.send("init",{
+                    allUsers :credentials.players,
+                    userId:this.matchMakingPlayers
+
+
+                })
+                
+                
+
+                
+
             }
 
             if(this.matchMakingPlayers.length==1){
@@ -66,9 +90,15 @@ export class UserManager{
         
         this.roomPlayers = [...this.matchMakingPlayers]
         this.matchMakingPlayers = []
-        this.competitionManager.addNewRoom(this.roomPlayers)
+        
+        const x = this.competitionManager.addNewRoom(this.roomPlayers)
+        
+        return x
+        
+
 
     }
+
 
 
 
