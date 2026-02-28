@@ -47,6 +47,8 @@ export class competition{
         this.wordCount = this.paragraph.split(" ").length
     }
 
+    
+
 
 
 

@@ -10,7 +10,7 @@ export class CompetitionManager{
     constructor(){
         this.competitions=[]
     }
-
+    
 
     public addNewRoom(AllUsers:matchMakingPlayers[]){
         const room = new competition(AllUsers)

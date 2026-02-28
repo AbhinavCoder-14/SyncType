@@ -35,21 +35,15 @@ export class UserManager{
     public addUser(ws:WebSocket){
         
         ws.on("join",(data)=>{
-            this.matchMakingPlayers.push({name:data.name,ws:data.ws,isStarted:false
-            })
+            this.users.push({...data,isStarted:false})
+            this.matchMakingPlayers.push({...data,isStarted:false})
             if (this.matchMakingPlayers.length==5){
                 this.triggerRoom()
             }
 
             if(this.matchMakingPlayers.length==1){
                 this.startLobbytime()
-            }
-
-
-
-            
-
-
+            }   
 
         })
         
@@ -73,8 +67,9 @@ export class UserManager{
         this.roomPlayers = [...this.matchMakingPlayers]
         this.matchMakingPlayers = []
         this.competitionManager.addNewRoom(this.roomPlayers)
-        
+
     }
+
 
 
 
