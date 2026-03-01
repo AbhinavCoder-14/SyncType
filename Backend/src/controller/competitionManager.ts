@@ -28,6 +28,19 @@ export class CompetitionManager{
 
     }
 
+    public getComp(compId:string){
+        return( this.competitions.find((x)=>{
+            return x.compId === compId;
+        })?? null)
+    }
+
+    public onSubmit(compId:string, userId:string, charIndex:number,startTime:number){
+        // search and call the fuction of though compId
+        if(!this.getComp(compId)) return "Compeition does not exist";
+
+        this.getComp(compId)?.updateProgress(userId, charIndex,startTime)
+    }
+
 
 
 }

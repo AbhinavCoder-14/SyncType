@@ -88,6 +88,35 @@ export class UserManager{
 
     }
 
+    public currentDataFromWs(ws:WebSocket){
+
+        // Individual socket data of users to add in the memory so that we can broadcast to all the users
+        ws.on("message",(data)=>{
+
+            const message = JSON.parse(data.toString())
+
+            if (message.type === "submit"){
+                if (!message.payload.userId || !message.payload.compId){
+                    return "Insufficent data"
+                }
+
+                this.competitionManager.onSubmit(message.payload.compId, message.payload.userId,message.payload.charIndex,message.payload.startTime)
+
+
+
+
+            }
+
+
+
+
+
+        })
+
+
+
+    }
+
 
 
 
