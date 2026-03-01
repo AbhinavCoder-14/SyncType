@@ -18,6 +18,8 @@ const io = Init.getInstanceWs().connection
 
 io.on("connection",(ws)=>{
     console.log("user connected")
+    const wsId = crypto.randomUUID();
+    
 
 
     ws.on("message",(message)=>{

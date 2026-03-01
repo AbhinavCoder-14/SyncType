@@ -51,16 +51,7 @@ export class UserManager{
             if (this.matchMakingPlayers.length==5){
                 const credentials = this.triggerRoom()
                 console.log("users - ", credentials.players," is added in room - ",credentials.roomId)
-
-                ws.send("init",{
-                    allUsers :credentials.players,
-                    userId:this.matchMakingPlayers
-
-
-                })
                 
-                
-
                 
 
             }
