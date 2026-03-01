@@ -19,7 +19,14 @@ const io = Init.getInstanceWs().connection
 io.on("connection",(ws)=>{
     console.log("user connected")
     const wsId = crypto.randomUUID();
-    
+
+    (ws as any).wsId = wsId
+
+    ws.send(JSON.stringify({
+    type: "INITIAL_AUTH",
+    payload: { wsId }
+        }));
+
 
 
     ws.on("message",(message)=>{

@@ -61,24 +61,30 @@ export class competition {
         isFinished: false,
       },
     }));
-    this.start(AllUsers);
+    this.Init(AllUsers);
 
     return this.players;
   }
 
-  public start(AllUsers: matchMakingPlayers[]) {
+  public Init(AllUsers: matchMakingPlayers[]) {
     AllUsers.forEach((user) => {
       user.ws.send(
         JSON.stringify({
           type: "INIT",
           payload: {
-            myId: user.userId, // This is how they know "which car is mine"
+            myId: user.userId,
             compId: this.compId,
-            allPlayers: this.players, // The list of opponents
+            allPlayers: this.players, 
             paragraph: this.paragraph,
           },
         }),
       );
     });
   }
+
+
+
+
+
+
 }
