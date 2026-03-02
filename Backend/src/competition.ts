@@ -153,7 +153,7 @@ export class competition {
 
 
 
-  public startGame(){
+  public async startGame(){
     this.hasStarted = true
     this.state = RaceState.IN_PROGRESS
     this.BroadCastInfo({
@@ -171,6 +171,9 @@ export class competition {
 
 
     })
+    this.paragraph = await this.fetchPara()
+    this.totalChars = this.paragraph.length
+    this.wordCount = this.paragraph.split(" ").length
 
 
   }
@@ -238,6 +241,20 @@ export class competition {
     if (this.players.every(p => p.PlayerProgress.isFinished)) {
       this.state = RaceState.FINISHED;
     }
+  }
+
+
+  public async fetchPara(){
+    try{
+      const response = await fetch("https://api.quotable.io/random")
+      const data = await response.json()
+      return data
+    }catch (error) {
+        // Fallback paragraph if the API is down
+        return "The quick brown fox jumps over the lazy dog.";
+    }
+
+
   }
 
 

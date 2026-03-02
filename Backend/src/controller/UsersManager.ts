@@ -32,6 +32,7 @@ export class UserManager{
         this.roomPlayers = []
         // this.player = []
         // this.compId = ""
+        this.currentDataFromWs(ws)
 
         
 
@@ -85,7 +86,6 @@ export class UserManager{
         const x = this.competitionManager.addNewRoom(this.roomPlayers,compId)
 
         // this.users.set(x.players.ws,{compId:x.compId,userId:x.players.userId})
-        
         return x
         
 
@@ -131,8 +131,9 @@ export class UserManager{
 
         if(user) {
             this.competitionManager.removeUser(user.compId,user.userId)
-
+            
         }
+        this.users.delete(ws)
 
         
         // remove the user form the game or matchmaking
