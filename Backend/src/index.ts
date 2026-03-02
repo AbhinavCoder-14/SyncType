@@ -2,6 +2,7 @@ import express  from "express"
 import cors from "cors"
 import http from "http"
 import { Init } from "./lib/webSocketInit.js"
+import { UserManager } from "./controller/UsersManager.js"
 
 
 const app = express()
@@ -35,11 +36,19 @@ io.on("connection",(ws)=>{
         ws.send(`Server received your message: ${message}`);
 
     })
-
     // Use userManager.ts to to further logic
+
+    const userManage = new UserManager(ws)
+    userManage.addUser(ws)
+
+
 
     ws.on('close', () => {
         console.log('Client disconnected');
+        userManage.removeUser(ws)
+        
+
+
     });
 
 

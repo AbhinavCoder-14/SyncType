@@ -16,7 +16,7 @@ export interface matchMakingPlayers{
 }
 
 export class UserManager{
-    public users:User[]
+    public users = new Map<string,{roomId:string,userId:string}>();
     public matchMakingPlayers:matchMakingPlayers[]
     private competitionManager;
     private lobbyTimer: NodeJS.Timeout | null = null;
@@ -27,7 +27,6 @@ export class UserManager{
 
 
     public constructor(ws:WebSocket){
-        this.users = []
         this.matchMakingPlayers = []
         this.competitionManager = new CompetitionManager()
         this.roomPlayers = []
@@ -46,8 +45,9 @@ export class UserManager{
     public addUser(ws:WebSocket){
         
         ws.on("join",(data)=>{
-            this.users.push({...data,isStarted:false})
-            this.matchMakingPlayers.push({...data,isStarted:false,userId:this.randomUUId()})
+            const userId = this.randomUUId() 
+            this.matchMakingPlayers.push({...data,isStarted:false,userId:userId})
+            
             if (this.matchMakingPlayers.length==5){
                 const credentials = this.triggerRoom()
                 console.log("users - ", credentials.players," is added in room - ",credentials.roomId)
@@ -81,6 +81,8 @@ export class UserManager{
         this.matchMakingPlayers = []
         
         const x = this.competitionManager.addNewRoom(this.roomPlayers)
+
+        // this.users.set(x.players.ws,{roomId:x.roomId,userId:x.players.userId})
         
         return x
         
@@ -115,6 +117,17 @@ export class UserManager{
 
 
 
+    }
+
+    public findUsers(){
+        
+    }
+
+
+    public removeUser(ws:WebSocket){
+        // const user =
+        
+        // remove the user form the game or matchmaking
     }
 
 

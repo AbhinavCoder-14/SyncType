@@ -10,7 +10,7 @@ export interface Player {
     wpm: number;
     accuracy: number;
     isFinished: boolean;
-    finishTime: number;
+    finishTime: number | undefined;
   };
   isStarted: boolean;
 }
@@ -58,6 +58,7 @@ export class competition {
         wpm: 0,
         accuracy: 100,
         isFinished: false,
+        finishTime:undefined
       },
     }));
     this.Init(AllUsers);
