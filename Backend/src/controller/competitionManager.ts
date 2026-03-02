@@ -14,17 +14,17 @@ export class CompetitionManager{
     }
     
 
-    public addNewRoom(AllUsers:matchMakingPlayers[]){
-        const myUuid:string = uuidv4();
+    public addNewRoom(AllUsers:matchMakingPlayers[],compId:string){
+        if(this.getComp(compId)) return {message:"Room already exists",players:null,compId:null}
 
-        const room = new competition(myUuid)
+        const room = new competition(compId)
         this.competitions.push(room)
         
         
         this.players = room.addUser(
             AllUsers
         )
-        return {players:this.players,roomId:room.compId}
+        return {players:this.players,compId:room.compId,message:"Room created successfully"}
 
     }
 
@@ -39,6 +39,13 @@ export class CompetitionManager{
         if(!this.getComp(compId)) return "Compeition does not exist";
 
         this.getComp(compId)?.updateProgress(userId, charIndex,startTime)
+    }
+    removeUser(compId:string,userId:string){
+
+        if (this.getComp(compId)){
+            this.getComp(compId)?.removeUser(userId)
+        }
+
     }
 
 

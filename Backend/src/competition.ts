@@ -23,7 +23,7 @@ export enum RaceState {
 
 export class competition {
   public compId: string;
-  private players: Player[];
+  public players: Player[];
   private paragraph: string;
   private hasStarted: boolean;
   private state: RaceState;
@@ -172,6 +172,17 @@ export class competition {
 
     })
 
+
+  }
+
+  findPlayer(userId:string){
+    return this.players.filter((player)=>{
+      player.userId !== userId
+    })
+  }
+
+  removeUser(userId:string){
+    this.players = this.findPlayer(userId)
 
   }
 
