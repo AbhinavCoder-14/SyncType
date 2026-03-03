@@ -21,6 +21,7 @@ export enum RaceState {
   FINISHED = "FINISHED",
 }
 
+
 export class competition {
   public compId: string;
   public players: Player[];
@@ -65,6 +66,7 @@ export class competition {
 
     return this.players;
   }
+
 
 
   private BroadCastInfo(message:object){
@@ -190,6 +192,7 @@ export class competition {
   }
 
 
+
   public updateProgress(userId: string, charIndex: number,startTime:number) {
     const player = this.players.find(p => p.userId === userId);
     
@@ -235,7 +238,11 @@ export class competition {
           progress: (p.PlayerProgress.charIndex / this.totalChars) * 100
         }))
       }
+    
     });
+    
+    
+
 
     // Check if everyone is finished to move state to FINISHED
     if (this.players.every(p => p.PlayerProgress.isFinished)) {
@@ -244,7 +251,7 @@ export class competition {
   }
 
 
-  public async fetchPara(){
+  public async fetchPara(): Promise<string>{
     try{
       const response = await fetch("https://api.quotable.io/random")
       const data = await response.json()
