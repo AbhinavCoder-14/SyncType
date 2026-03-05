@@ -99,12 +99,14 @@ export class UserManager{
 
             const message = JSON.parse(data.toString())
 
-            if (message.type === "submit"){
+            if (message.type === "KEY_PRESS"){
                 if (!message.payload.userId || !message.payload.compId){
                     return "Insufficent data"
                 }
 
-                this.competitionManager.onSubmit(message.payload.compId, message.payload.userId,message.payload.charIndex,message.payload.startTime)
+                const {charIndex,typedKey,compId,userId} = message.payload
+
+                this.competitionManager.onSubmit(compId, userId,charIndex,typedKey)
 
 
 

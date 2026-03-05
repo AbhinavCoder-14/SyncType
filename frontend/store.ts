@@ -18,7 +18,7 @@ interface Mutation {
 	changeMode: (mode: State["config"]["mode"]) => void;
 	toggleRealtimeStats: (bool?: boolean) => void;
 	toggleCaseSensitive: (bool?: boolean) => void;
-	incrStat: (stat: keyof State["stats"]) => void;
+	incrStat: (stat: keyof State["stats"]) => void; 
 	reset: () => void;
 }
 

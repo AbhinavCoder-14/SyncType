@@ -73,7 +73,7 @@ export default function TypingArea({
 		if (currLetterIdx === word.length) {
 			if (typedLetter !== " ") return;
 			setCurrWordIdx((i) => i + 1);
-			setCurrLetterIdx(0);
+			setCurrLetterIdx(0);	
 			incrStat("wordCount");
 			return;
 		}
@@ -101,6 +101,7 @@ export default function TypingArea({
 			{...props}
 		>
 			{words.map((word, widx) => {
+				// isCurrWord is only for checking rendering word and the wordtype is synced or not
 				const isCurrWord = widx === currWordIdx && currLetterIdx < word.length;
 				return (
 					<div
@@ -111,7 +112,7 @@ export default function TypingArea({
 							widx < currWordIdx && "text-neutral-100",
 						)}
 					>
-						{/* Word */}
+						{/* Word: Check correctness of the typed word as the typed word will checked by the event function and it will validated that the and if incorrect then added in typos and will fetch that here same as for correct */}
 						{word.split("").map((ltr, lidx) => {
 							const isTypo = typos.has(`${widx},${lidx}`);
 							const isCorrect = lidx < currLetterIdx && isCurrWord && !isTypo;
@@ -142,7 +143,7 @@ export default function TypingArea({
 							/>
 						)}
 						{/* Spacebar indicator */}
-						{widx === currWordIdx && currWordIdx !== words.length - 1 && (
+						{widx === currWordIdx && currWordIdx!== words.length - 1 && (
 							<div
 								className={clsx(
 									"absolute top-0 -right-2 transition-opacity duration-500 bg-neutral-800 h-full px-2 rounded",

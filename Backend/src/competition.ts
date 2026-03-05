@@ -1,18 +1,23 @@
 import { WebSocket } from "ws";
 import type { matchMakingPlayers } from "./controller/UsersManager.js";
 
+
 export interface Player {
   userId: string;
   ws: WebSocket;
   name: string;
   PlayerProgress: {
-    charIndex: number;
     wpm: number;
     accuracy: number;
     isFinished: boolean;
     finishTime: number | undefined;
+    typedCharCount: number;
+
+    typos: Set<string>;
+    totalKeystrokes: number; // Needed for accurate Accuracy math
   };
   isStarted: boolean;
+
 }
 
 export enum RaceState {
@@ -37,6 +42,7 @@ export class competition {
   constructor(compId: string) {
     this.compId = compId;
     this.players = [];
+
     this.paragraph = "";
     this.hasStarted = false;
     this.state = RaceState.WAITING;
@@ -55,11 +61,13 @@ export class competition {
     this.players = AllUsers.map((user) => ({
       ...user,
       PlayerProgress: {
-        charIndex: 0,
+        typedCharCount: 0,
         wpm: 0,
         accuracy: 100,
         isFinished: false,
-        finishTime:undefined
+        finishTime:undefined,
+        typos: new Set<string>(),
+        totalKeystrokes:0,
       },
     }));
     this.Init(AllUsers);
@@ -191,11 +199,96 @@ export class competition {
 
   }
 
+  // public getTyposofUser(userId:string){
+  //   return this.typos.get(userId)
+
+  // }
+
+  // this function is only for validation and collecting stats of all the users
+  public userEventValidation(userId:string,typedKey:any,wordIdx:number, letterIdx:number){
+
+    // const typos = new Map<typeof userId,{typeWordIndex:number,typoLetterIndex:number}>()
+
+    const player = this.players.find(p=>p.userId === userId)
+
+    if (!player || player.PlayerProgress.isFinished) return
+    
+    player.PlayerProgress.totalKeystrokes +=1;
+    if (typedKey.key = "Backspace"){
+      const typoKey = `${wordIdx},${letterIdx - 1}`;
+      if(player.PlayerProgress.typos.has(typoKey)){
+        player.PlayerProgress.typos.delete(typoKey);
+      }
+      if (player.PlayerProgress.typedCharCount > 0) {
+            player.PlayerProgress.typedCharCount -= 1;
+        }
+
+    }
+
+    if(typedKey.key.length !== 1) return;
+
+    // if(wordIdx === 0 && letterIdx === 0 ){
+    //   player.PlayerProgress.startTime = Date.now()
+    // }
+    
+    // isFinished also be there from the frontend side
+    // if(letterIdx === this.paragraph.length - 1 && wordIdx ) 
 
 
-  public updateProgress(userId: string, charIndex: number,startTime:number) {
+    const words = this.paragraph.split(" ")
+    const word = words[wordIdx]
+
+    if(word && word[letterIdx] !== typedKey.key){
+      player.PlayerProgress.typos.add(`${wordIdx},${letterIdx}`)
+      // also increment the typo index also after updating the interface -  no need - use length
+    }
+
+    if (letterIdx == word?.length){
+      if (typedKey.key === " "){
+        player.PlayerProgress.typedCharCount +=1
+      }
+      else{
+        player.PlayerProgress.typos.add(`${wordIdx},${letterIdx}`);
+      }
+      return
+    }
+
+    if (player.PlayerProgress.typedCharCount >= this.totalChars) {
+        player.PlayerProgress.isFinished = true;
+        player.PlayerProgress.finishTime = Date.now(); // vese, there is no use of this ;)
+    }
+
+
+
+
+
+    player.PlayerProgress.typedCharCount +=1
+
+
+
+
+
+
+    
+
+
+    this.recalculateStats(userId);
+
+
+  }
+
+  public recalculateStats(userId:string){
+
+  }
+
+
+
+
+
+  public updateProgress(userId: string, typedCharCount: number) {
     const player = this.players.find(p => p.userId === userId);
     
+    const startTime = Date.now()
     // Only update if the player exists, the race is running, and they aren't finished
     if (!player || this.state !== RaceState.IN_PROGRESS || player.PlayerProgress.isFinished) return;
     this.startTime = startTime
@@ -204,19 +297,19 @@ export class competition {
     const timeElapsedMinutes = (now - (this.startTime || now)) / 60000;
 
     // Standard WPM: (characters / 5) / minutes
-    const wordsTyped = charIndex / 5;
+    const wordsTyped = typedCharCount / 5;
     const currentWpm = timeElapsedMinutes > 0 
       ? Math.round(wordsTyped / timeElapsedMinutes) 
       : 0;
 
     this.players = this.players.map((p) => {
       if (p.userId === userId) {
-        const isDone = charIndex >= this.totalChars;
+        const isDone = typedCharCount >= this.totalChars;
         return {
           ...p,
           PlayerProgress: {
             ...p.PlayerProgress,
-            charIndex: charIndex,
+            typedCharCount: typedCharCount,
             wpm: currentWpm,
             isFinished: isDone,
             finishTime: isDone ? now : p.PlayerProgress.finishTime,
@@ -232,10 +325,10 @@ export class competition {
       payload: {
         players: this.players.map(p => ({
           userId: p.userId,
-          charIndex: p.PlayerProgress.charIndex,
+          typedCharCount: p.PlayerProgress.typedCharCount,
           wpm: p.PlayerProgress.wpm,
           isFinished: p.PlayerProgress.isFinished,
-          progress: (p.PlayerProgress.charIndex / this.totalChars) * 100
+          progress: (p.PlayerProgress.typedCharCount / this.totalChars) * 100
         }))
       }
     

@@ -34,11 +34,13 @@ export class CompetitionManager{
         })?? null)
     }
 
-    public onSubmit(compId:string, userId:string, charIndex:number,startTime:number){
+    public onSubmit(compId:string, userId:string, charIndex:number,typedKey:string){
         // search and call the fuction of though compId
         if(!this.getComp(compId)) return "Compeition does not exist";
 
-        this.getComp(compId)?.updateProgress(userId, charIndex,startTime)
+        this.getComp(compId)?.updateProgress(userId, charIndex)
+
+        this.getComp(compId)?.userEventValidation(userId,charIndex,typedKey)
     }
     removeUser(compId:string,userId:string){
 
