@@ -104,9 +104,9 @@ export class UserManager{
                     return "Insufficent data"
                 }
 
-                const {charIndex,typedKey,compId,userId} = message.payload
+                const {charIndex,typedKey,compId,userId,wordInx,letterIdx} = message.payload
 
-                this.competitionManager.onSubmit(compId, userId,charIndex,typedKey)
+                this.competitionManager.onSubmit(compId, userId,typedKey,wordInx,letterIdx)
 
 
 

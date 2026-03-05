@@ -15,6 +15,7 @@ export interface Player {
 
     typos: Set<string>;
     totalKeystrokes: number; // Needed for accurate Accuracy math
+    racePoints:number // final relative marking
   };
   isStarted: boolean;
 
@@ -33,11 +34,13 @@ export class competition {
   private paragraph: string;
   private hasStarted: boolean;
   private state: RaceState;
-  private startTime: number | null;
+  private startTime: number;
   private countdown: number;
 
   private totalChars: number;
   private wordCount: number;
+  public WPSWEIGHT:number;
+  public ACCWEIGHT:number;
 
   constructor(compId: string) {
     this.compId = compId;
@@ -46,10 +49,12 @@ export class competition {
     this.paragraph = "";
     this.hasStarted = false;
     this.state = RaceState.WAITING;
-    this.startTime = new Date().getTime();
+    this.startTime = 0;
     this.countdown = 10;
     this.totalChars = this.paragraph.length;
     this.wordCount = this.paragraph.split(" ").length;
+    this.WPSWEIGHT = 0.7
+    this.ACCWEIGHT = 0.3
   }
   // private randomUUId() {
   //   let userId = crypto.randomUUID();
@@ -66,6 +71,7 @@ export class competition {
         accuracy: 100,
         isFinished: false,
         finishTime:undefined,
+        racePoints:0,
         typos: new Set<string>(),
         totalKeystrokes:0,
       },
@@ -166,6 +172,10 @@ export class competition {
   public async startGame(){
     this.hasStarted = true
     this.state = RaceState.IN_PROGRESS
+    this.paragraph = await this.fetchPara();
+    this.startTime = Date.now()
+    this.totalChars = this.paragraph.length
+    this.wordCount = this.paragraph.split(" ").length
     this.BroadCastInfo({
       type:"GameInfo",
       payload:{
@@ -181,9 +191,10 @@ export class competition {
 
 
     })
-    this.paragraph = await this.fetchPara()
-    this.totalChars = this.paragraph.length
-    this.wordCount = this.paragraph.split(" ").length
+
+    
+    this.updateProgress() // for broadcasting the result each second
+    
 
 
   }
@@ -214,7 +225,7 @@ export class competition {
     if (!player || player.PlayerProgress.isFinished) return
     
     player.PlayerProgress.totalKeystrokes +=1;
-    if (typedKey.key = "Backspace"){
+    if (typedKey.key === "Backspace"){
       const typoKey = `${wordIdx},${letterIdx - 1}`;
       if(player.PlayerProgress.typos.has(typoKey)){
         player.PlayerProgress.typos.delete(typoKey);
@@ -258,26 +269,28 @@ export class competition {
         player.PlayerProgress.finishTime = Date.now(); // vese, there is no use of this ;)
     }
 
-
-
-
-
     player.PlayerProgress.typedCharCount +=1
 
-
-
-
-
-
-    
-
-
-    this.recalculateStats(userId);
+    this.recalculateStats(player);
 
 
   }
 
-  public recalculateStats(userId:string){
+  public recalculateStats(player:Player){
+    if (!player) return;
+
+    const timeDiff = (Date.now() - this.startTime) / 60000;
+
+    const typedCharCount =  player.PlayerProgress.typedCharCount
+    
+    player.PlayerProgress.wpm = ((typedCharCount*60)/(timeDiff*5))
+    player.PlayerProgress.accuracy = (100 - (player.PlayerProgress.typos.size *100)/typedCharCount)
+
+    const performanceFactor = (player.PlayerProgress.wpm * 0.7) + (player.PlayerProgress.accuracy * 0.3);
+    const distancePercent = (player.PlayerProgress.typedCharCount / this.totalChars) * 100;
+    player.PlayerProgress.racePoints = (distancePercent * 0.5) + (performanceFactor * 0.5);
+
+
 
   }
 
@@ -285,62 +298,68 @@ export class competition {
 
 
 
-  public updateProgress(userId: string, typedCharCount: number) {
-    const player = this.players.find(p => p.userId === userId);
+  public updateProgress() {
+    // const player = this.players.find(p => p.userId === userId);
     
-    const startTime = Date.now()
-    // Only update if the player exists, the race is running, and they aren't finished
-    if (!player || this.state !== RaceState.IN_PROGRESS || player.PlayerProgress.isFinished) return;
-    this.startTime = startTime
-    const now = Date.now();
-    // Use the server's recorded startTime for WPM calculation
-    const timeElapsedMinutes = (now - (this.startTime || now)) / 60000;
+    // const startTime = Date.now()
+    // // Only update if the player exists, the race is running, and they aren't finished
+    // if (!player || this.state !== RaceState.IN_PROGRESS || player.PlayerProgress.isFinished) return;
+    // this.startTime = startTime
+    // const now = Date.now();
+    // // Use the server's recorded startTime for WPM calculation
+    // const timeElapsedMinutes = (now - (this.startTime || now)) / 60000;
 
-    // Standard WPM: (characters / 5) / minutes
-    const wordsTyped = typedCharCount / 5;
-    const currentWpm = timeElapsedMinutes > 0 
-      ? Math.round(wordsTyped / timeElapsedMinutes) 
-      : 0;
+    // // Standard WPM: (characters / 5) / minutes
+    // const wordsTyped = typedCharCount / 5;
+    // const currentWpm = timeElapsedMinutes > 0 
+    //   ? Math.round(wordsTyped / timeElapsedMinutes) 
+    //   : 0;
 
-    this.players = this.players.map((p) => {
-      if (p.userId === userId) {
-        const isDone = typedCharCount >= this.totalChars;
-        return {
-          ...p,
-          PlayerProgress: {
-            ...p.PlayerProgress,
-            typedCharCount: typedCharCount,
-            wpm: currentWpm,
-            isFinished: isDone,
-            finishTime: isDone ? now : p.PlayerProgress.finishTime,
-          },
-        };
-      }
-      return p;
-    });
+    // this.players = this.players.map((p) => {
+    //   if (p.userId === userId) {
+    //     const isDone = typedCharCount >= this.totalChars;
+    //     return {
+    //       ...p,
+    //       PlayerProgress: {
+    //         ...p.PlayerProgress,
+    //         typedCharCount: typedCharCount,
+    //         wpm: currentWpm,
+    //         isFinished: isDone,
+    //         finishTime: isDone ? now : p.PlayerProgress.finishTime,
+    //       },
+    //     };
+    //   }
+    //   return p;
+    // });
 
     // Broadcast the "Snapshot" for the Race Simulation
-    this.BroadCastInfo({
-      type: "RACE_UPDATE",
-      payload: {
-        players: this.players.map(p => ({
-          userId: p.userId,
-          typedCharCount: p.PlayerProgress.typedCharCount,
-          wpm: p.PlayerProgress.wpm,
-          isFinished: p.PlayerProgress.isFinished,
-          progress: (p.PlayerProgress.typedCharCount / this.totalChars) * 100
-        }))
+
+    const oneSecIntervel = setInterval(()=>{
+      this.BroadCastInfo({
+        type: "RACE_UPDATE",
+        payload: {
+          players: this.players.map(p => ({
+            userId: p.userId,
+            typedCharCount: p.PlayerProgress.typedCharCount,
+            wpm: p.PlayerProgress.wpm,
+            acc:p.PlayerProgress.accuracy,
+            isFinished: p.PlayerProgress.isFinished,
+            RaceState:p.PlayerProgress.racePoints,
+          }))
+        }
+      
+      });
+      
+      
+  
+  
+      // Check if everyone is finished to move state to FINISHED
+      if (this.players.every(p => p.PlayerProgress.isFinished)) {
+        this.state = RaceState.FINISHED;
+        clearInterval(oneSecIntervel)
       }
-    
-    });
-    
-    
 
-
-    // Check if everyone is finished to move state to FINISHED
-    if (this.players.every(p => p.PlayerProgress.isFinished)) {
-      this.state = RaceState.FINISHED;
-    }
+    },1000)
   }
 
 
@@ -348,7 +367,7 @@ export class competition {
     try{
       const response = await fetch("https://api.quotable.io/random")
       const data = await response.json()
-      return data
+      return data.content
     }catch (error) {
         // Fallback paragraph if the API is down
         return "The quick brown fox jumps over the lazy dog.";
