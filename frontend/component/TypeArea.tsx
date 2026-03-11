@@ -11,7 +11,7 @@ interface IProps extends React.ComponentProps<"div"> {
 
 export default function TypingArea({
 	text,
-	isOverlayed,
+	isOverlayed, //if its true then will overlay the component with blur
 	onStart,
 	onFinish,
 	...props
@@ -81,11 +81,11 @@ export default function TypingArea({
 		// Typos
 		if (word[currLetterIdx] !== typedLetter) {
 			setTypos((prev) => prev.add(`${currWordIdx},${currLetterIdx}`));
-			incrStat("typos");
+			incrStat("typos"); // stats updation
 		}
 
 		// Progressing
-		if (charCount >= typedCharCount) incrStat("typedCharCount");
+		if (charCount >= typedCharCount) incrStat("typedCharCount"); //stats updation
 
 		setCurrLetterIdx((i) => i + 1);
 		setCharCount((c) => c + 1);
@@ -98,7 +98,7 @@ export default function TypingArea({
 			role="textbox"
 			tabIndex={0}
 			className="flex flex-wrap focus:outline-none relative font-mono text-3xl"
-			{...props}
+			
 		>
 			{words.map((word, widx) => {
 				// isCurrWord is only for checking rendering word and the wordtype is synced or not
