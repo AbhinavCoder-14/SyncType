@@ -47,9 +47,9 @@ export class UserManager{
         
         ws.on("join",(data)=>{
             const userId = this.randomUUId()
-            const compId = this.randomUUId()
-            this.users.set(ws,{compId:compId,userId:userId})
-            this.matchMakingPlayers.push({...data,isStarted:false,userId:userId})
+            // const compId = this.randomUUId() // this is a bug, it will create diff compId for each user
+            this.users.set(ws,{compId:"",userId:userId})
+            this.matchMakingPlayers.push({...data.payload,isStarted:false,userId:userId})
             ws.send(JSON.stringify({
                     type:"MATCH_MAKING",
                     payload:{
@@ -59,8 +59,9 @@ export class UserManager{
                 }))
             
             if (this.matchMakingPlayers.length==5){
-                const credentials = this.triggerRoom(compId)
+                const credentials = this.triggerRoom()
                 console.log("users - ", credentials.players," is added in room - ",credentials.compId)
+                // this will only send the only 5th player that matchMake is true
                 ws.send(JSON.stringify({
                     type:"MATCH_MAKING",
                     payload:{
@@ -73,18 +74,18 @@ export class UserManager{
 
             if(this.matchMakingPlayers.length==1){
                 
-                this.startLobbytime(compId)
+                this.startLobbytime()
             }   
 
         })
         
     }
 
-    private startLobbytime(compId:string){
+    private startLobbytime(){
 
         this.lobbyTimer = setTimeout(() => {
             if(this.matchMakingPlayers.length >= 3){
-                this.triggerRoom(compId)
+                this.triggerRoom()
             }
 
         }, 10000);
@@ -92,11 +93,26 @@ export class UserManager{
     }
 
 
-    private triggerRoom(compId:string){
+    private triggerRoom(){
         if(this.lobbyTimer) clearTimeout(this.lobbyTimer)
         
         this.roomPlayers = [...this.matchMakingPlayers]
         this.matchMakingPlayers = []
+        const compId = this.randomUUId()
+
+        this.roomPlayers.forEach((player)=>{
+            const userData = this.users.get(player.ws)
+            if(userData) userData.compId = compId
+
+            player.ws.send(JSON.stringify({
+                    type:"MATCH_MAKING",
+                    payload:{
+                        userId:player.userId,
+                        matchMake:true
+                    }
+                }))
+
+        })
         
         const x = this.competitionManager.addNewRoom(this.roomPlayers,compId)
 
