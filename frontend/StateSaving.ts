@@ -39,15 +39,16 @@ const initialState: State = {
   },
 };
 
-const useStore = create<State & Mutations>((set, get) => ({
+export const useStore = create<State & Mutations>((set, get) => ({
   ...initialState,
 
   changeMode: (mode) =>
     set((state) => ({
-      config: {
-        ...state.config,
-        mode,
-      },
+        ...state,
+        config: {
+            ...state.config,
+            mode,
+        },
     })),
 
   toggleRealTimeStats: (bool) =>
@@ -84,6 +85,7 @@ const useStore = create<State & Mutations>((set, get) => ({
     sec = get().stats.secElapsed,
     charCount = get().stats.totalKeystrokes,
   ) => +(((charCount * 60) / sec) * 5).toFixed(1),
+  
   calcAccuracy: (
     typo = get().stats.typos,
     charCount = get().stats.totalKeystrokes,
