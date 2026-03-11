@@ -50,14 +50,29 @@ export class UserManager{
             const compId = this.randomUUId()
             this.users.set(ws,{compId:compId,userId:userId})
             this.matchMakingPlayers.push({...data,isStarted:false,userId:userId})
+            ws.send(JSON.stringify({
+                    type:"MATCH_MAKING",
+                    payload:{
+                        userId:userId,
+                        matchMake:false,
+                    }
+                }))
             
             if (this.matchMakingPlayers.length==5){
                 const credentials = this.triggerRoom(compId)
                 console.log("users - ", credentials.players," is added in room - ",credentials.compId)
+                ws.send(JSON.stringify({
+                    type:"MATCH_MAKING",
+                    payload:{
+                        userId:userId,
+                        matchMake:true
+                    }
+                }))
                 
             }
 
             if(this.matchMakingPlayers.length==1){
+                
                 this.startLobbytime(compId)
             }   
 
