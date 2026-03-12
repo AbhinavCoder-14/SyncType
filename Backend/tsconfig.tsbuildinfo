@@ -1,0 +1,1 @@
+{"root":["./src/competition.ts","./src/index.ts","./src/controller/usersmanager.ts","./src/controller/competitionmanager.ts","./src/lib/websocketinit.ts"],"version":"5.9.3"}

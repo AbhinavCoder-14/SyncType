@@ -17,25 +17,34 @@ export default function Home() {
   // creating a singleton instantace from the websocket-client
   const wsClient = WebSocket_Client.getWsInstance()
 
+  wsClient.receiveMessage()
+
+  
 
 
-  // in useeffect we have to listen to MATCH_MAKING type and which inform us that 
+
+  // In useeffect we have to listen to MATCH_MAKING type and which inform us that 
+
+  useEffect(()=>{
+    const handleMatchFound = (payload:any) =>{
+      if (payload.matchMake){
+        console.log("Match found! :)")
+      }
+      console.log("finding match...")
+    }
+
+    wsClient.on("MATCH_MAKING",handleMatchFound)
+
+  },[])
 
   const handleJoin = () =>{
-    if(ws){
-      ws.send(JSON.stringify({
-        type:"join",
-        payload:{
-          username:username,
-        }
+    wsClient.send("join",{username})
 
-      }))
 
     }
-  }
-
-  return (
-    <>
+    
+    return (
+      <>
 
       <Button onClick={()=>handleJoin()}>Play Game</Button>
 
@@ -44,8 +53,9 @@ export default function Home() {
 
     </>
 
-  )}
+)
 
+}
 
   
     // <div className="h-[100vh] w-full flex flex-col justify-center items-center p-8 bg-neutral-950 text-neutral-200">

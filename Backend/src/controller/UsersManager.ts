@@ -48,6 +48,7 @@ export class UserManager{
         ws.on("join",(data)=>{
             const userId = this.randomUUId()
             // const compId = this.randomUUId() // this is a bug, it will create diff compId for each user
+            console.log("user request to match make")
             this.users.set(ws,{compId:"",userId:userId})
             this.matchMakingPlayers.push({...data.payload,isStarted:false,userId:userId})
             ws.send(JSON.stringify({

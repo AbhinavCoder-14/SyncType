@@ -1,4 +1,4 @@
-import { Socket } from "dgram";
+
 import { useSocket } from "./wsContext";
 
 
@@ -42,6 +42,22 @@ class WebSocket_Client{
     private emit(event:string,data:any){
         this.listeners.get(event)?.forEach(cb=>cb(data));
     }
+
+    // this is the efficient and scalable way to receive a message of a event 
+
+    public receiveMessage(){
+        if(this.ws){
+            this.ws.onmessage = (event) =>{
+                const message = JSON.parse(event.data)
+                this.emit(message.type,message.payload)
+            }
+        
+
+        }
+    }
+    
+ 
+
 
 
 
