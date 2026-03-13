@@ -13,6 +13,7 @@ export interface matchMakingPlayers{
     ws:WebSocket;
     userId:string;
     isStarted:boolean;
+    
 }
 
 export class UserManager{
@@ -21,6 +22,7 @@ export class UserManager{
     private competitionManager;
     private lobbyTimer: NodeJS.Timeout | null = null;
     private roomPlayers:matchMakingPlayers[]
+    public static instance:UserManager;
     // public player : Player[]
     // public compId:string;
 
@@ -37,6 +39,19 @@ export class UserManager{
         
 
     }
+    
+    // Singleton pattern to solve the problem of mutiple instance
+    public static getInstance(ws:WebSocket){
+        if(!UserManager.instance){
+            UserManager.instance = new UserManager(ws)
+        }
+
+        return UserManager.instance
+
+
+    }
+
+
     private randomUUId() {
       let id = crypto.randomUUID();
     // console.log(userId);
@@ -45,38 +60,47 @@ export class UserManager{
 
     public addUser(ws:WebSocket){
         
-        ws.on("join",(data)=>{
-            const userId = this.randomUUId()
-            // const compId = this.randomUUId() // this is a bug, it will create diff compId for each user
-            console.log("user request to match make")
-            this.users.set(ws,{compId:"",userId:userId})
-            this.matchMakingPlayers.push({...data.payload,isStarted:false,userId:userId})
-            ws.send(JSON.stringify({
-                    type:"MATCH_MAKING",
-                    payload:{
-                        userId:userId,
-                        matchMake:false,
-                    }
-                }))
-            
-            if (this.matchMakingPlayers.length==5){
-                const credentials = this.triggerRoom()
-                console.log("users - ", credentials.players," is added in room - ",credentials.compId)
-                // this will only send the only 5th player that matchMake is true
-                ws.send(JSON.stringify({
-                    type:"MATCH_MAKING",
-                    payload:{
-                        userId:userId,
-                        matchMake:true
-                    }
-                }))
-                
-            }
+        ws.on("message",(messages)=>{
+            const data = JSON.parse(messages.toString())
+            if(data.type === "join"){
 
-            if(this.matchMakingPlayers.length==1){
+                const userId = this.randomUUId()
+                // const compId = this.randomUUId() // this is a bug, it will create diff compId for each user
+                this.users.set(ws,{compId:"",userId:userId})
+                this.matchMakingPlayers.push({...data.payload,isStarted:false,userId:userId,ws:ws})
+                console.log("user request to match make", this.matchMakingPlayers)
                 
-                this.startLobbytime()
-            }   
+
+                if (this.matchMakingPlayers.length<2){
+                    ws.send(JSON.stringify({
+                            type:"MATCH_MAKING",
+                            payload:{
+                                userId:userId,
+                                matchMake:false,
+                            }
+                        }))
+                }
+                
+                if (this.matchMakingPlayers.length==2){
+                    console.log("threshold acheived")
+                    const credentials = this.triggerRoom()
+                    console.log("users - ", credentials.players," is added in room - ",credentials.compId)
+                    // this will only send the only 5th player that matchMake is true
+                    ws.send(JSON.stringify({
+                        type:"MATCH_MAKING",
+                        payload:{
+                            userId:userId,
+                            matchMake:true
+                        }
+                    }))
+                    
+                }
+    
+                if(this.matchMakingPlayers.length==1){
+                    
+                    this.startLobbytime()
+                }   
+            }
 
         })
         
@@ -95,7 +119,9 @@ export class UserManager{
 
 
     private triggerRoom(){
+        console.log("enterd in triggerRoom")
         if(this.lobbyTimer) clearTimeout(this.lobbyTimer)
+        
         
         this.roomPlayers = [...this.matchMakingPlayers]
         this.matchMakingPlayers = []

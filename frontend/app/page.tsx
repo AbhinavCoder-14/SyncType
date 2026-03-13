@@ -1,11 +1,12 @@
 'use client';
 
-import TypingArea from "@/component/TypeArea";
-import clsx from "clsx";
+
 import React,{useState,useEffect} from "react";
 import { Button } from "@/components/ui/button"
 import { useSocket } from "./lib/wsContext";
 import WebSocket_Client from "./lib/ws-client";
+import { redirect, useRouter } from "next/navigation"
+
 
 export default function Home() {
   const ws:WebSocket | null = useSocket()
@@ -13,11 +14,15 @@ export default function Home() {
   const [appState, setAppState] = useState<"idle" | "active" | "result">("idle")
   const [username, setUserName] = useState("player_1")
   const [matched , setMatched]  = useState<boolean>(false)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [matchMake, setMatchMaked] = useState<boolean>(false)
+  const [compId,setCompId] = useState<string | null>(null)
 
   // creating a singleton instantace from the websocket-client
   const wsClient = WebSocket_Client.getWsInstance()
 
   wsClient.receiveMessage()
+  const router = useRouter();
 
   
 
@@ -28,7 +33,11 @@ export default function Home() {
   useEffect(()=>{
     const handleMatchFound = (payload:any) =>{
       if (payload.matchMake){
-        console.log("Match found! :)")
+        console.log("Match found! :)",)
+        setUserId(payload.userId)
+        setMatchMaked(payload.matchMake)
+
+        
       }
       console.log("finding match...")
     }
@@ -40,8 +49,12 @@ export default function Home() {
   const handleJoin = () =>{
     wsClient.send("join",{username})
 
+    if (matchMake){
+      redirect(`/room/${compId}`)
+    }
 
     }
+
     
     return (
       <>

@@ -6,9 +6,9 @@ import { UserManager } from "./controller/UsersManager.js"
 
 
 const app = express()
-app.use(cors)
+app.use(cors())
 app.use(express.json())
-const PORT = process.env.PORT || 8000
+const PORT = 8000
 
 
 const server:http.Server = http.createServer(app)
@@ -30,22 +30,22 @@ io.on("connection",(ws)=>{
 
 
 
-    ws.on("message",(message)=>{
-        console.log("Recivied message")
+    // ws.on("message",(message)=>{
+    //     console.log("Recivied message")
 
-        ws.send(`Server received your message: ${message}`);
+    //     ws.send(`Server received your message: ${message}`);
 
-    })
+    // })
     // Use userManager.ts to to further logic
 
-    const userManage = new UserManager(ws)
-    userManage.addUser(ws)
+    const userManager = UserManager.getInstance(ws)
+    userManager.addUser(ws)
 
 
 
     ws.on('close', () => {
         console.log('Client disconnected');
-        userManage.removeUser(ws)
+        userManager.removeUser(ws)
         
 
 
@@ -63,6 +63,6 @@ io.on("connection",(ws)=>{
 
 
 
-app.listen(PORT,()=>{
-    console.log("listening at 8000")
+server.listen(PORT,()=>{
+    console.log("listening at ",PORT)
 })

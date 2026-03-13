@@ -109,14 +109,17 @@ export class competition {
           type: "INIT",
           payload: {
             myId: user.userId,
+            username:user.name,
             compId: this.compId,
             allPlayers: this.players, 
             paragraph: this.paragraph,
+            state:this.state
           },
         }),
       );
     });
     this.state = RaceState.WAITING
+    this.startingTimeout()
     
   }
 
@@ -140,6 +143,13 @@ export class competition {
       else{
         clearInterval(aSecIntervel)
         console.log("GAME STARTED")
+        this.BroadCastInfo({
+          type:"count_down",
+          payload:{
+            counter:this.countdown,
+            hasStarted:!this.hasStarted
+          }
+        })
         this.startGame()
         
 
@@ -180,11 +190,11 @@ export class competition {
       type:"GameInfo",
       payload:{
         
-        compId:this.compId,
-        hasStarted:this.hasStarted,
+        compId:this.compId,// useless
+        hasStarted:this.hasStarted, // useless
         paragraph:this.paragraph,
         players:this.players,
-        state:this.currentStateGame()
+        state:this.currentStateGame() // useless
 
       }
 
