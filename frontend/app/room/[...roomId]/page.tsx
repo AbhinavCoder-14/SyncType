@@ -30,7 +30,7 @@ export default async function CompPage() {
     const [compId,setCompId] = useState<string | null>(null)
     const [countDown,setCountDown] = useState<Number>(10)
 
-    const [currentState , setCurrentState] = useState<RaceState>()
+    const [currentState , setCurrentState] = useState<RaceState>(RaceState.WAITING)
 
         // creating a singleton instantace from the websocket-client
     const wsClient = WebSocket_Client.getWsInstance()
@@ -113,7 +113,7 @@ export default async function CompPage() {
         
                 </button>
         
-                <TypingArea text={paragraph} isOverlayed={false} onStart={()=> setAppState("active")} onFinish={()=>{setAppState("result")}} onBlur={()=>{setIsFocused(false)}}
+                <TypingArea text={paragraph} isOverlayed={false} onStart={()=> setAppState("active")} onFinish={()=>{setAppState("result")}} onBlur={()=>{setIsFocused(false)}} currentState={currentState} compId={compId? compId:"NAN"} userId={userId? userId:"NAN"}
                 // built-in function on foucs changes
                 /> 
         

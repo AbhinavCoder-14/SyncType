@@ -1,10 +1,15 @@
 import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 import useStore from "../store";
+import { RaceState } from "@/app/room/[...roomId]/page";
+import WebSocket_Client from "@/app/lib/ws-client";
 
 interface IProps extends React.ComponentProps<"div"> {
 	text: string;
 	isOverlayed: boolean;
+	currentState:RaceState;
+	compId:string;
+	userId:string;
 	onStart?: () => void;
 	onFinish?: () => void;
 }
@@ -13,6 +18,9 @@ export default function TypingArea({
 	text,
 	isOverlayed, //if its true then will overlay the component with blur
 	onStart,
+	currentState,
+	compId,
+	userId,
 	onFinish,
 	...props
 }: IProps) {
@@ -39,7 +47,29 @@ export default function TypingArea({
 		setTypos(new Set<`${number},${number}`>());
 	}, [text]);
 
+
+	const sendEventToBackend = (e:React.KeyboardEvent<HTMLDivElement>,currWordIdx:Number,currLetterIdx:Number)=>{
+
+		const wsClient = WebSocket_Client.getWsInstance()
+
+    	wsClient.receiveMessage()
+
+		wsClient.send("KEY_PRESS",{
+			userId:userId,
+			typedKey:e.key,
+			wordInx:currWordIdx,
+			letterIdx:currLetterIdx,
+		})
+
+		
+
+	}
+
+
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		
+		
+
 		// Delete only until the beginning of the word
 		if (e.key === "Backspace") {
 			if (typos.has(`${currWordIdx},${currLetterIdx - 1}`)) {
@@ -89,6 +119,7 @@ export default function TypingArea({
 
 		setCurrLetterIdx((i) => i + 1);
 		setCharCount((c) => c + 1);
+		sendEventToBackend(e,currWordIdx,currLetterIdx)
 	};
 
 	return (

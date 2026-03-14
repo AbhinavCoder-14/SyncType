@@ -13,7 +13,7 @@ export interface matchMakingPlayers{
     ws:WebSocket;
     userId:string;
     isStarted:boolean;
-    
+
 }
 
 export class UserManager{
@@ -162,7 +162,7 @@ export class UserManager{
                     return "Insufficent data"
                 }
 
-                const {charIndex,typedKey,compId,userId,wordInx,letterIdx} = message.payload
+                const {typedKey,compId,userId,wordInx,letterIdx} = message.payload
 
                 this.competitionManager.onSubmit(compId, userId,typedKey,wordInx,letterIdx)
 

@@ -59,7 +59,7 @@ export default function Home() {
     return (
       <>
 
-      <Button onClick={()=>handleJoin()}>Play Game</Button>
+      <Button onClick={handleJoin}>Play Game</Button>
 
       
 
