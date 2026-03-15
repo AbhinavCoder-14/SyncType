@@ -3,6 +3,7 @@
 A low-latency, scalable multiplayer typing race application. Built with raw WebSockets, no Socket.io abstraction.
 
 ![LLD Diagram](./frontend/public/LLD.excalidraw.svg)
+![HLD Diagram](./frontend/public/HLD.excalidraw.svg)
 
 ---
 
