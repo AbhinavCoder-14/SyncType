@@ -1,23 +1,25 @@
 
+import { WebSocket } from "ws";
 import { useSocket } from "./wsContext";
 
 
 class WebSocket_Client{
-    ws:WebSocket | null;
+    ws: WebSocket | null;
     public static instance:WebSocket_Client;
     private listeners:Map<string,Function[]> = new Map();
 
     
 
-    private constructor(){
-        this.ws = useSocket()
+    private constructor(ws:WebSocket | null){
+        this.ws = ws
     }
 
-    public static getWsInstance(){
+    public static getWsInstance(ws:WebSocket | null):WebSocket_Client {
         if (!WebSocket_Client.instance){
-            WebSocket_Client.instance = new WebSocket_Client()
+            WebSocket_Client.instance = new WebSocket_Client(ws ?? null)
         }
 
+        if (ws) WebSocket_Client.instance.ws = ws;
         return WebSocket_Client.instance
 
     }
@@ -27,8 +29,10 @@ class WebSocket_Client{
         if (this.ws?.readyState === WebSocket.OPEN){
             this.ws.send(JSON.stringify({type,payload}))
         }
+        console.log("entered in ws clinet")
 
     }
+
 
 
     // this is the another way to grab the message from sever where we don't nessarly need to use message.type === "MATCH_MAKE"... and then condition and all that shit

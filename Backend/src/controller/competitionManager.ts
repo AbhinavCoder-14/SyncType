@@ -42,7 +42,7 @@ export class CompetitionManager{
 
         this.getComp(compId)?.userEventValidation(userId,typedKey,letterIdx,wordIdx)
     }
-    removeUser(compId:string,userId:string){
+    public removeUser(compId:string,userId:string){
 
         if (this.getComp(compId)){
             this.getComp(compId)?.removeUser(userId)

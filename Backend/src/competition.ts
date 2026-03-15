@@ -197,9 +197,6 @@ export class competition {
         state:this.currentStateGame() // useless
 
       }
-
-
-
     })
 
     

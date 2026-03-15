@@ -3,6 +3,7 @@ import { competition, type Player } from "../competition.js";
 import { CompetitionManager } from "./competitionManager.js";
 
 
+
 // interface User {
 //   name: string;
 //   ws: WebSocket;
