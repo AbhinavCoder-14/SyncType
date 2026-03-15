@@ -1,6 +1,6 @@
 # ⌨️ TypeRace — Realtime Multiplayer Typing Race
 
-A low-latency, scalable multiplayer typing race application — inspired by [TypeRacer](https://play.typeracer.com/). Built with raw WebSockets, no Socket.io abstraction.
+A low-latency, scalable multiplayer typing race application. Built with raw WebSockets, no Socket.io abstraction.
 
 ![LLD Diagram](./frontend/public/LLD.excalidraw.svg)
 
