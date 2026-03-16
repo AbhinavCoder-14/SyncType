@@ -357,8 +357,8 @@ export class competition {
       
       });
       
-      
-  
+         
+    
   
       // Check if everyone is finished to move state to FINISHED
       if (this.players.every(p => p.PlayerProgress.isFinished)) {
