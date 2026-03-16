@@ -2,8 +2,11 @@
 
 A low-latency, scalable multiplayer typing race application. Built with raw WebSockets, no Socket.io abstraction.
 
-![LLD Diagram](./frontend/public/LLD.excalidraw.svg)
-![HLD Diagram](./frontend/public/HLD.excalidraw.svg)
+# Low Level System Architecture
+![LLD Diagram](./frontend/public/LLD1.excalidraw.svg)
+
+# Scalable System Architecture
+![HLD Diagram](./frontend/public/HLD1.excalidraw.svg)
 
 ---
 
