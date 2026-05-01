@@ -7,7 +7,7 @@ A low-latency, scalable multiplayer typing race application. Built with raw WebS
 
 # Scalable System Architecture
 ![HLD Diagram](./frontend/public/HLD1.excalidraw.svg)
-
+    
 ---
 
 ## What I Built
