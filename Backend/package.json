@@ -16,6 +16,7 @@
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "http": "0.0.1-security",
+    "ioredis": "^5.10.1",
     "typescript": "^5.9.3",
     "uuid": "^13.0.0",
     "websocket": "^1.0.35",

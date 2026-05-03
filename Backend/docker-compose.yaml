@@ -1,8 +1,27 @@
-version: "3.8"
+version: '3.9'
 
 services:
+  backend:
+    build: .
+    container_name: synctype-backend
+    ports:
+      - "3000:3000"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+
   redis:
-    image: redis:7
-    container_name: redis
+    image: redis:7-alpine
+    container_name: synctype-redis
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+volumes:
+  redis-data:
