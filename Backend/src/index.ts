@@ -2,7 +2,7 @@ import express  from "express"
 import cors from "cors"
 import http from "http"
 import { Init } from "./lib/webSocketInit.js"
-import { UserManager, UserManager } from "./controller/UsersManager.js"
+import { UserManager } from "./controller/UsersManager.js"
 import { Redis } from "ioredis";
 
 
