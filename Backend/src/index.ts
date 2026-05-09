@@ -2,7 +2,8 @@ import express  from "express"
 import cors from "cors"
 import http from "http"
 import { Init } from "./lib/webSocketInit.js"
-import { UserManager } from "./controller/UsersManager.js"
+import { UserManager, UserManager } from "./controller/UsersManager.js"
+import { Redis } from "ioredis";
 
 
 const app = express()
@@ -16,6 +17,11 @@ const server:http.Server = http.createServer(app)
 Init.getInstanceWs(server)
 const io = Init.getInstanceWs().connection
 
+const redis = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
+
+const userManager = new UserManager(redis)
+
+
 
 io.on("connection",(ws)=>{
     console.log("user connected")
@@ -28,6 +34,11 @@ io.on("connection",(ws)=>{
     payload: { wsId }
         }));
 
+    const userId = crypto.randomUUID();
+    const gatewayId = process.env.GATEWAY_ID || "wg-1";
+
+    userManager.addUser(ws,userId,gatewayId);
+
 
 
     // ws.on("message",(message)=>{
@@ -38,19 +49,8 @@ io.on("connection",(ws)=>{
     // })
     // Use userManager.ts to to further logic
 
-    const userManager = UserManager.getInstance(ws)
-    userManager.addUser(ws)
-
-
-
-    ws.on('close', () => {
-        console.log('Client disconnected');
-        userManager.removeUser(ws)
-        
-
-
-    });
-
+    // const userManager = UserManager.getInstance(ws)
+    // userManager.addUser(ws)
 
 
 })
