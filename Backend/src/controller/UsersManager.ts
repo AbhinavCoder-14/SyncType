@@ -105,9 +105,4 @@ export class UserManager{
     });
         
     }
-
-
-
-
-
 }

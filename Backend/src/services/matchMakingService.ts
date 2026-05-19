@@ -47,7 +47,7 @@ export class MatchmakingService{
         })
 
         subscriber.on("message",async (channel,message)=>{
-            if (channel==="matchingmaking:queue"){
+            if (channel==="matchmaking:queue"){
                 const user: UserProfile = JSON.parse(message)
                 console.log(`[MatchmakingService] User ${user.userId} (${user.username}) joined queue`);
                 await this.addUserToQueue(user);
@@ -81,7 +81,7 @@ export class MatchmakingService{
 
 
     public async addUserToQueue(user:UserProfile){
-        await this.redis.lpush("matchmaking:users",JSON.stringify(user))
+        await this.redis.lpush("matchmaking:queue:users",JSON.stringify(user))
 
         const queueSize = await this.redis.llen("matchmaking:queue:users");
 
@@ -106,12 +106,26 @@ export class MatchmakingService{
 
     }
 
-
-    public removeUserFromQueue(userId:string){
-
-
+    public async removeUserFromQueue(userId: string) {
+        const queueKey = "matchmaking:queue:users";
+        
+        // Get all users
+        const allUsers = await this.redis.lrange(queueKey, 0, -1);
+        
+        await this.redis.del(queueKey);
+        
+        // Re-add all except the one we're removing
+        for (const userJson of allUsers) {
+            const user = JSON.parse(userJson);
+            if (user.userId !== userId) {
+                await this.redis.lpush(queueKey, userJson);
+            }
+        }
+        
+        const newSize = await this.redis.llen(queueKey);
+        console.log(`[MatchmakingService] After removal, queue size: ${newSize}`);
     }
-
+    
     public async createRoom(){
 
         const userCount = await this.redis.llen("matchmaking:queue:users")
